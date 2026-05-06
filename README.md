@@ -7,12 +7,12 @@ A fully functional **E-Commerce CLI application** built with **Python and SQLite
 ## 📌 Features
 
 ### 👤 User Management
-- User Registration with **hashed passwords** (SHA-256)
-- Secure Login / Logout
+- User registration with **hashed passwords** (SHA-256)
+- Secure login / logout
 - Admin and Customer roles
 
 ### 📦 Product Management
-- Add, view, update products
+- Add, view, and update products
 - Stock and price management
 - Category-wise organization
 - Low stock alerts
@@ -21,8 +21,7 @@ A fully functional **E-Commerce CLI application** built with **Python and SQLite
 - Browse product catalog
 - Place orders with **real-time stock validation**
 - **Atomic transactions** — order rolls back if anything fails
-- View order history
-- View order item details
+- View order history and item details
 - Cancel orders with automatic **stock restoration**
 
 ### 📊 Analytics & Reports
@@ -45,68 +44,90 @@ ecommerce_project/
 │── utils.py         # Password hashing, CSV export, table printer
 │── schema.sql       # Database schema
 │── init_db.py       # Database initializer
-│── README.md
+└── README.md
 ```
 
 ---
 
 ## 🗄️ Database Schema
 
-```
-users        → id, name, email, password (hashed), created_at
-products     → id, name, price, stock, category, created_at
-orders       → id, user_id, total, status, created_at
-order_items  → id, order_id, product_id, quantity, unit_price
-```
+| Table         | Description                                      |
+|---------------|--------------------------------------------------|
+| `users`       | id, name, email, password (hashed), created_at  |
+| `products`    | id, name, price, stock, category, created_at    |
+| `orders`      | id, user_id, total, status, created_at          |
+| `order_items` | id, order_id, product_id, quantity, unit_price  |
 
 ---
 
 ## ⚙️ Tech Stack
 
-- **Language:** Python 3
-- **Database:** SQLite3
-- **Security:** SHA-256 password hashing
-- **Data Export:** CSV
+| Layer     | Technology        |
+|-----------|-------------------|
+| Language  | Python 3          |
+| Database  | SQLite3           |
+| Security  | SHA-256 hashing   |
+| Export    | CSV (built-in)    |
 
 ---
 
 ## 🚀 How to Run
 
-### 1. Initialize the database
+### 1. Clone the repository
+```bash
+git clone https://github.com/DayanidhiGudimetla/ecommerce-order-management.git
+cd ecommerce-order-management
+```
+
+### 2. Initialize the database
 ```bash
 python init_db.py
 ```
 
-### 2. Run the application
+### 3. Run the application
 ```bash
 python main.py
 ```
+
+> No external dependencies required — uses Python standard library only.
 
 ---
 
 ## 🔐 Roles
 
-| Role  | Access |
-|-------|--------|
-| Admin | User ID = 1 (first registered user) |
-| User  | All other registered users |
+| Role  | How it works                          | Access                        |
+|-------|---------------------------------------|-------------------------------|
+| Admin | First registered user (user ID = 1)  | Products, users, analytics    |
+| User  | All other registered users            | Browse, order, track orders   |
 
 ---
 
-## 📋 How to Use
+## 📋 Usage Guide
 
 1. Run `python init_db.py` to set up the database
-2. Run `python main.py`
-3. Register → first registered user becomes **Admin**
-4. Admin can add products and view analytics
-5. Other users can browse, order, and track orders
+2. Run `python main.py` to launch the CLI
+3. **Register** — the first registered user automatically becomes Admin
+4. **Admin** can add products, manage stock/prices, view analytics, export reports
+5. **Users** can browse products, place orders, view history, and cancel orders
+
+---
+
+## 📊 Analytics Available (Admin Only)
+
+- 💰 Total revenue from all confirmed orders
+- 📦 Total number of orders placed
+- 🏆 Top 5 best-selling products (by quantity)
+- 📂 Revenue breakdown by product category
+- 📄 Full sales report exportable to `sales_report.csv`
 
 ---
 
 ## 👨‍💻 Author
 
-**Dayanidhi Gudimetla**  
-GitHub: [github.com/DayanidhiGudimetla](https://github.com/DayanidhiGudimetla)
+**Dayanidhi Gudimetla**
+- 📧 gudimetladaya11@gmail.com
+- 🔗 [LinkedIn](https://www.linkedin.com/in/dayanidhi-gudimetla-2b08013ab)
+- 🐙 [GitHub](https://github.com/DayanidhiGudimetla)
 
 ---
 
