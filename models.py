@@ -1,29 +1,29 @@
 from db import connect
 from validators import validate_positive_float, validate_non_negative_int, validate_email, validate_non_empty
-from utils import hash_password, print_table
+from utils import hash_password, verify_password, print_table
 
 # ──────────────────────────────────────────────
 # USER OPERATIONS
 # ──────────────────────────────────────────────
 
 def register_user():
-    """Register a new user with hashed password."""
+    """Register a new user with salted SHA-256 hashed password."""
     conn = connect()
     cur = conn.cursor()
     try:
-        name = validate_non_empty(input("  Full Name: "), "Name")
-        email = validate_email(input("  Email: "))
+        name     = validate_non_empty(input("  Full Name: "), "Name")
+        email    = validate_email(input("  Email: "))
         password = validate_non_empty(input("  Password: "), "Password")
 
-        hashed = hash_password(password)
+        # Generate unique salt + hash for this user
+        hashed, salt = hash_password(password)
 
         cur.execute(
-            "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-            (name, email, hashed)
+            "INSERT INTO users (name, email, password, salt) VALUES (?, ?, ?, ?)",
+            (name, email, hashed, salt)
         )
         conn.commit()
         print("  ✅ User registered successfully!")
-
     except Exception as e:
         print(f"  ❌ Error: {e}")
     finally:
@@ -32,21 +32,22 @@ def register_user():
 
 def login_user():
     """Login a user and return user_id if successful."""
-    from utils import verify_password
     conn = connect()
     cur = conn.cursor()
     try:
-        email = input("  Email: ").strip()
+        email    = input("  Email: ").strip()
         password = input("  Password: ").strip()
 
-        cur.execute("SELECT id, name, password FROM users WHERE email=?", (email,))
+        # Fetch stored hash AND salt for this user
+        cur.execute("SELECT id, name, password, salt FROM users WHERE email=?", (email,))
         row = cur.fetchone()
 
         if not row:
             print("  ❌ User not found.")
             return None
 
-        if verify_password(password, row["password"]):
+        # Verify using the stored salt
+        if verify_password(password, row["password"], row["salt"]):
             print(f"  ✅ Welcome back, {row['name']}!")
             return row["id"]
         else:
@@ -80,9 +81,9 @@ def add_product():
     conn = connect()
     cur = conn.cursor()
     try:
-        name = validate_non_empty(input("  Product Name: "), "Product Name")
-        price = validate_positive_float(input("  Price: "), "Price")
-        stock = validate_non_negative_int(input("  Stock Quantity: "), "Stock")
+        name     = validate_non_empty(input("  Product Name: "), "Product Name")
+        price    = validate_positive_float(input("  Price: "), "Price")
+        stock    = validate_non_negative_int(input("  Stock Quantity: "), "Stock")
         category = input("  Category (default: General): ").strip() or "General"
 
         cur.execute(
@@ -91,7 +92,6 @@ def add_product():
         )
         conn.commit()
         print("  ✅ Product added successfully!")
-
     except Exception as e:
         print(f"  ❌ Error: {e}")
     finally:
@@ -115,7 +115,7 @@ def update_stock():
     cur = conn.cursor()
     try:
         view_products()
-        pid = int(input("\n  Enter Product ID to update stock: "))
+        pid       = int(input("\n  Enter Product ID to update stock: "))
         new_stock = validate_non_negative_int(input("  New Stock Quantity: "), "Stock")
 
         cur.execute("UPDATE products SET stock=? WHERE id=?", (new_stock, pid))
@@ -124,7 +124,6 @@ def update_stock():
         else:
             conn.commit()
             print("  ✅ Stock updated successfully!")
-
     except Exception as e:
         print(f"  ❌ Error: {e}")
     finally:
@@ -137,7 +136,7 @@ def update_price():
     cur = conn.cursor()
     try:
         view_products()
-        pid = int(input("\n  Enter Product ID to update price: "))
+        pid       = int(input("\n  Enter Product ID to update price: "))
         new_price = validate_positive_float(input("  New Price: "), "Price")
 
         cur.execute("UPDATE products SET price=? WHERE id=?", (new_price, pid))
@@ -146,7 +145,6 @@ def update_price():
         else:
             conn.commit()
             print("  ✅ Price updated successfully!")
-
     except Exception as e:
         print(f"  ❌ Error: {e}")
     finally:
